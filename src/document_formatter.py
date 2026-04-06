@@ -9,16 +9,12 @@ achieved exclusively through size, weight, colour, and spacing.
 
 from __future__ import annotations
 
-import re
-from typing import Any
-
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING, WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Inches, Pt, RGBColor, Cm
-from docx.enum.section import WD_SECTION
+from docx.shared import Inches, Pt, RGBColor
 
 from src.color_schemes import ColorScheme, pick_scheme
 
@@ -94,14 +90,13 @@ def _set_table_border(table, hex_color: str) -> None:
 def _add_page_break(doc: Document) -> None:
     p = doc.add_paragraph()
     run = p.add_run()
-    run.add_break(docx_break := __import__("docx.enum.text", fromlist=["WD_BREAK"]).WD_BREAK.PAGE)  # noqa
+    run.add_break(WD_BREAK.PAGE)
     p.paragraph_format.space_before = Pt(0)
     p.paragraph_format.space_after = Pt(0)
 
 
 def _paragraph_page_break(doc: Document) -> None:
     """Insert a page break as a paragraph-level run."""
-    from docx.enum.text import WD_BREAK
     p = doc.add_paragraph()
     run = p.add_run()
     run.add_break(WD_BREAK.PAGE)

@@ -61,7 +61,7 @@ def test_generate_report_valid_word_document(monkeypatch):
             os.unlink(out)
 
 
-def test_generate_report_default_output_path(monkeypatch, tmp_path, monkeypatch_cwd=None):
+def test_generate_report_default_output_path(monkeypatch, tmp_path):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.chdir(tmp_path)
     result = generate_report(
