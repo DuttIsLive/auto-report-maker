@@ -33,6 +33,10 @@ DARK_TEXT    = RGBColor(0x1A, 0x1A, 0x2E)
 SUBTEXT      = RGBColor(0x4A, 0x4A, 0x6A)
 HEADING_COLOR = RGBColor(0x1F, 0x45, 0x78)
 
+# Conversion factor: Word row height values are in twentieths of a point (twips);
+# 1 cm ≈ 567 twips.
+_TWIPS_PER_CM = 567
+
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
@@ -133,7 +137,7 @@ def _set_row_height(row, height_cm: float) -> None:
     """Fix the height of a table row."""
     tr_pr = row._tr.get_or_add_trPr()
     tr_height = OxmlElement("w:trHeight")
-    tr_height.set(qn("w:val"), str(int(height_cm * 567)))  # 567 EMU per cm approx
+    tr_height.set(qn("w:val"), str(int(height_cm * _TWIPS_PER_CM)))
     tr_height.set(qn("w:hRule"), "exact")
     existing = tr_pr.find(qn("w:trHeight"))
     if existing is not None:
@@ -157,12 +161,12 @@ def _add_paragraph(cell_or_doc, text: str, font_size: int,
                    bold: bool = False, italic: bool = False,
                    color: Optional[RGBColor] = None,
                    alignment: WD_ALIGN_PARAGRAPH = WD_ALIGN_PARAGRAPH.LEFT,
-                   space_before: int = 0, space_after: int = 0) -> None:
-    """Add a paragraph with a single run to a cell or document."""
-    if hasattr(cell_or_doc, "paragraphs") and hasattr(cell_or_doc, "add_paragraph"):
-        para = cell_or_doc.add_paragraph()
-    else:
-        para = cell_or_doc.add_paragraph()
+                   space_before: int = 0, space_after: int = 0):
+    """Add a paragraph with a single run to a cell or document.
+
+    Returns the created paragraph.
+    """
+    para = cell_or_doc.add_paragraph()
     para.alignment = alignment
     para.paragraph_format.space_before = Pt(space_before)
     para.paragraph_format.space_after  = Pt(space_after)
@@ -307,7 +311,7 @@ def _build_abstract(doc: Document, abstract: str) -> None:
 
 def _build_section(doc: Document, section: Section, index: int) -> None:
     """Render one content section with a styled heading and body text."""
-    # Section number prefix
+    # Double space after number visually separates it from the heading text.
     number = f"{index}.  "
 
     heading_para = doc.add_paragraph()
